@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TailorFit.ai — Resume ATS Optimizer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <div class="logo">
+        <span class="logo-icon">🚀</span>
+        <h2>TailorFit.ai</h2>
+      </div>
+      <nav class="nav-menu">
+        <button id="nav-dashboard" class="nav-item active"><span class="icon">📝</span> Tailor Tool</button>
+        <button id="nav-history" class="nav-item"><span class="icon">💼</span> Saved Resumes</button>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="user-profile" id="user-profile-btn" style="cursor: pointer;">
+          <div class="avatar" id="user-avatar">?</div>
+          <div class="user-info">
+            <h4 id="user-name-display">Guest Mode</h4>
+            <p id="user-role-display">Click to Login / Register</p>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- DASHBOARD VIEW -->
+      <div id="view-dashboard-container">
+        <header class="header">
+          <div class="header-title">
+            <h1>Resume ATS Optimizer</h1>
+            <p>Instantly align your resume with any job description to beat Applicant Tracking Systems (ATS).</p>
+          </div>
+          <div class="header-actions">
+            <div class="status-badge live" id="ai-status-badge">NVIDIA Nemotron ATS Engine</div>
+          </div>
+        </header>
+
+        <!-- Step 1: Input forms side by side -->
+        <div class="dashboard-grid">
+          <section class="card input-card">
+            <div class="card-header">
+              <h3>1. Paste Your Current Resume</h3>
+              <span class="lbl-limit">Markdown / Text</span>
+            </div>
+            <textarea id="resume-input" placeholder="Paste your resume contents here..."></textarea>
+          </section>
+
+          <section class="card input-card">
+            <div class="card-header">
+              <h3>2. Paste the Target Job Description</h3>
+              <span class="lbl-limit">Job Ad Text</span>
+            </div>
+            <textarea id="job-input" placeholder="Paste the full job description / requirements here..."></textarea>
+          </section>
+        </div>
+
+        <div class="action-btn-row" style="margin-top: 16px;">
+          <button id="optimize-btn" class="btn primary">Scan & Optimize Resume</button>
+        </div>
+
+        <!-- Step 2: Analysis & Output Panel (Hidden by default) -->
+        <div id="results-panel" class="results-panel hidden" style="margin-top: 24px;">
+          <div class="results-grid">
+            <!-- Left: ATS Match Score & Keywords -->
+            <div class="side-results">
+              <div class="card score-card">
+                <h3>ATS Match Score</h3>
+                <div class="score-comparison">
+                  <div class="score-box original">
+                    <span class="score-num" id="orig-score">0%</span>
+                    <span class="score-lbl">Original Score</span>
+                  </div>
+                  <div class="score-arrow">➡️</div>
+                  <div class="score-box optimized">
+                    <span class="score-num" id="opt-score">0%</span>
+                    <span class="score-lbl">Optimized Score</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card keywords-card" style="margin-top: 16px;">
+                <h3>Keyword Alignment</h3>
+                <div class="keyword-status-lists">
+                  <div class="kw-group">
+                    <h4 class="missing-title">❌ Missing Keywords Added</h4>
+                    <div class="tags-wrapper" id="missing-keywords-wrapper">
+                      <!-- JS injected -->
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right: Optimized Output Resume -->
+            <div class="card output-resume-card">
+              <div class="card-header">
+                <h3>Optimized Tailored Resume</h3>
+                <button id="copy-btn" class="btn secondary btn-sm">Copy Resume</button>
+              </div>
+              <p id="executive-summary-display" style="font-size: 13px; color: var(--accent-primary); margin-bottom: 12px; font-weight: 500;"></p>
+              <textarea id="output-resume-content" rows="16" readonly></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SAVED RESUMES HISTORY VIEW -->
+      <div id="view-history-container" class="hidden">
+        <header class="header">
+          <div class="header-title">
+            <h1>Saved Resumes & History</h1>
+            <p>View your past tailored resume scans saved in persistent WASM SQLite database.</p>
+          </div>
+          <div class="header-actions">
+            <button id="refresh-history-btn" class="btn secondary">🔄 Refresh</button>
+          </div>
+        </header>
+        <div class="card" style="margin-top: 20px; padding: 20px;">
+          <div id="history-items-container">
+            <!-- JS Injected -->
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Auth Modal -->
+  <div id="auth-modal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="modal-title">Login to TailorFit.ai</h3>
+        <button id="close-modal-btn" class="modal-close">&times;</button>
+      </div>
+      <form id="auth-form" class="modal-body">
+        <div class="form-group" id="name-group">
+          <label>Full Name</label>
+          <input type="text" id="auth-name" placeholder="John Doe" />
+        </div>
+        <div class="form-group">
+          <label>Email Address</label>
+          <input type="email" id="auth-email" placeholder="candidate@example.com" required />
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="auth-password" placeholder="••••••••" required />
+        </div>
+        <div id="auth-error-msg" class="auth-error hidden" style="color: #ef4444; font-size: 13px; margin-top: 8px;"></div>
+        <button type="submit" id="auth-submit-btn" class="btn primary" style="width: 100%; margin-top: 16px;">Sign In</button>
+      </form>
+      <div class="modal-footer" style="margin-top: 16px; text-align: center; font-size: 13px;">
+        <span id="auth-toggle-text">Don't have an account? <a href="#" id="auth-toggle-btn" style="color: var(--accent-primary);">Register here</a></span>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
