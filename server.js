@@ -4,6 +4,7 @@ const dotenv = require('dotenv');
 const { OpenAI } = require('openai');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const path = require('path');
 const db = require('./db');
 
 dotenv.config();
@@ -12,6 +13,10 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(express.static(__dirname));
+
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
 
 const JWT_SECRET = process.env.JWT_SECRET || 'tailorfit_ai_jwt_secret_2026';
 const PORT = process.env.PORT || 3002;
