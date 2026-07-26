@@ -16,7 +16,14 @@ app.use(express.static(__dirname));
 const JWT_SECRET = process.env.JWT_SECRET || 'tailorfit_ai_jwt_secret_2026';
 const PORT = process.env.PORT || 3002;
 
-db.initDb().catch(err => console.error('Database initialization error:', err));
+app.use(async (req, res, next) => {
+  try {
+    await db.initDb();
+  } catch (err) {
+    console.error('[Server] DB initialization warning:', err.message);
+  }
+  next();
+});
 
 function authenticateToken(req, res, next) {
   const authHeader = req.headers['authorization'];
