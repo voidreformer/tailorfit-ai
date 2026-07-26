@@ -1,16 +1,30 @@
-/* Modern Reset & Base Variables */
+/* OPEN DESIGN SYSTEM - STRICT HARDCORE CUSTOM USER COLOR PALETTE */
 :root {
-  --bg-darker: hsl(220, 25%, 8%);
-  --bg-dark: hsl(220, 20%, 12%);
-  --bg-card: hsl(220, 20%, 15%);
-  --bg-card-hover: hsl(220, 20%, 18%);
-  --text-main: hsl(210, 40%, 96%);
-  --text-muted: hsl(215, 20%, 65%);
-  --accent: hsl(170, 75%, 45%);
-  --accent-glow: hsla(170, 75%, 45%, 0.15);
-  --accent-hover: hsl(170, 80%, 50%);
-  --border: hsl(220, 15%, 22%);
-  --border-focus: hsl(170, 75%, 40%);
+  /* Exact 3 User Palette Hex Tokens */
+  --palette-sky: #C4E5FF;       /* Soft Light Blue (RGB 196, 229, 255) */
+  --palette-cream: #FFEFC4;     /* Warm Cream Yellow (RGB 255, 239, 196) */
+  --palette-peach: #FF9D52;     /* Vibrant Peach Orange (RGB 255, 157, 82) */
+
+  /* Application UI Base - Dark Midnight Navy */
+  --bg-darker: #0A1128;
+  --bg-dark: #121A36;
+  --bg-card: rgba(18, 26, 54, 0.9);
+  --bg-card-hover: rgba(18, 26, 54, 0.98);
+  
+  /* Text Tokens for 100% Crisp Contrast */
+  --text-main: #FFFFFF;         /* Pure Bright White */
+  --text-muted: #E2E8F0;        /* High-Contrast Slate */
+  
+  /* Accents - STRICT 3-COLOR PALETTE ONLY */
+  --accent: var(--palette-peach);            /* #FF9D52 */
+  --accent-glow: rgba(255, 157, 82, 0.35);
+  --accent-hover: var(--palette-peach);
+  
+  --accent-secondary: var(--palette-sky);    /* #C4E5FF */
+  --accent-tertiary: var(--palette-cream);   /* #FFEFC4 */
+
+  --border: rgba(196, 229, 255, 0.3);
+  --border-focus: var(--palette-peach);
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 16px;
@@ -116,12 +130,12 @@ body {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--accent), hsl(200, 80%, 45%));
+  background: linear-gradient(135deg, var(--palette-peach), var(--palette-sky));
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 600;
-  color: var(--bg-darker);
+  font-weight: 800;
+  color: #0A1128;
 }
 
 .user-info h4 {
@@ -157,10 +171,11 @@ body {
   font-weight: 800;
   margin-bottom: 0.25rem;
   letter-spacing: -0.5px;
+  color: #FFFFFF;
 }
 
 .header-title p {
-  color: var(--text-muted);
+  color: #E2E8F0;
 }
 
 .status-badge {
@@ -168,12 +183,12 @@ body {
   align-items: center;
   gap: 0.5rem;
   font-size: 0.85rem;
-  font-weight: 600;
+  font-weight: 700;
   padding: 0.5rem 1rem;
   border-radius: 50px;
-  background-color: hsla(170, 75%, 45%, 0.1);
-  color: var(--accent);
-  border: 1px solid hsla(170, 75%, 45%, 0.2);
+  background-color: rgba(255, 239, 196, 0.15);
+  color: var(--palette-cream);
+  border: 1px solid var(--palette-cream);
 }
 
 .status-badge::before {
@@ -181,8 +196,8 @@ body {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background-color: var(--accent);
-  box-shadow: 0 0 10px var(--accent);
+  background-color: var(--palette-peach);
+  box-shadow: 0 0 10px var(--palette-peach);
 }
 
 /* Input Side-by-Side Grid */
@@ -194,9 +209,9 @@ body {
 
 .input-card textarea {
   height: 250px;
-  background-color: var(--bg-dark);
+  background-color: #0A1128;
   border: 1px solid var(--border);
-  color: var(--text-main);
+  color: #FFFFFF;
   padding: 1rem;
   border-radius: var(--radius-md);
   font-family: var(--font-sans);
@@ -208,8 +223,8 @@ body {
 
 .input-card textarea:focus {
   outline: none;
-  border-color: var(--border-focus);
-  box-shadow: 0 0 0 2px var(--accent-glow);
+  border-color: var(--palette-peach);
+  box-shadow: 0 0 0 3px var(--accent-glow);
 }
 
 .card-header {
@@ -237,19 +252,20 @@ body {
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
 }
 
 .card h3 {
   font-family: var(--font-display);
   font-size: 1.2rem;
   font-weight: 700;
+  color: #FFFFFF;
 }
 
-/* Buttons */
+/* Buttons - STRICT CONTRAST ENFORCED */
 .btn {
   font-family: var(--font-sans);
-  font-weight: 600;
+  font-weight: 800;
   font-size: 0.95rem;
   padding: 0.85rem 2rem;
   border-radius: var(--radius-md);
@@ -262,25 +278,26 @@ body {
 }
 
 .btn.primary {
-  background-color: var(--accent);
-  color: var(--bg-darker);
+  background-color: var(--palette-peach);
+  color: #0A1128;
 }
 
 .btn.primary:hover {
-  background-color: var(--accent-hover);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px var(--accent-glow);
+  background-color: var(--palette-peach);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px var(--accent-glow);
+  color: #0A1128;
 }
 
 .btn.secondary {
   background-color: transparent;
-  color: var(--text-main);
-  border: 1px solid var(--border);
+  color: var(--palette-sky);
+  border: 1px solid var(--palette-sky);
 }
 
 .btn.secondary:hover {
-  background-color: var(--bg-card-hover);
-  border-color: var(--text-muted);
+  background-color: rgba(196, 229, 255, 0.15);
+  border-color: var(--palette-sky);
 }
 
 .btn-sm {
@@ -334,12 +351,12 @@ body {
 }
 
 .original .score-num {
-  color: hsl(0, 85%, 55%);
+  color: var(--palette-peach);
 }
 
 .optimized .score-num {
-  color: var(--accent);
-  text-shadow: 0 0 10px var(--accent-glow);
+  color: var(--palette-sky);
+  text-shadow: 0 0 10px rgba(196, 229, 255, 0.4);
 }
 
 .score-lbl {
@@ -351,7 +368,7 @@ body {
   font-size: 1.5rem;
 }
 
-/* Tag Wrapper keywords */
+/* Tag Wrapper keywords - STRICT PALETTE MAPPED */
 .keyword-status-lists {
   display: flex;
   flex-direction: column;
@@ -360,8 +377,9 @@ body {
 
 .kw-group h4 {
   font-size: 0.85rem;
-  font-weight: 600;
+  font-weight: 700;
   margin-bottom: 0.75rem;
+  color: #FFFFFF;
 }
 
 .tags-wrapper {
@@ -372,21 +390,21 @@ body {
 
 .tag {
   font-size: 0.75rem;
-  font-weight: 600;
-  padding: 0.35rem 0.75rem;
+  font-weight: 800;
+  padding: 0.4rem 0.85rem;
   border-radius: 50px;
 }
 
 .tag.missing {
-  background-color: hsla(0, 85%, 55%, 0.1);
-  color: hsl(0, 85%, 65%);
-  border: 1px solid hsla(0, 85%, 55%, 0.25);
+  background-color: var(--palette-cream);
+  color: #0A1128;
+  border: 1px solid var(--palette-cream);
 }
 
 .tag.matched {
-  background-color: hsla(150, 80%, 42%, 0.1);
-  color: hsl(150, 80%, 45%);
-  border: 1px solid hsla(150, 80%, 42%, 0.25);
+  background-color: var(--palette-sky);
+  color: #0A1128;
+  border: 1px solid var(--palette-sky);
 }
 
 /* Output resume area */
