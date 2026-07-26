@@ -41,6 +41,10 @@
 
 body {
   background-color: var(--bg-darker);
+  background-image: 
+    radial-gradient(circle at 10% 20%, rgba(255, 157, 82, 0.12), transparent 40%),
+    radial-gradient(circle at 90% 80%, rgba(196, 229, 255, 0.12), transparent 40%),
+    radial-gradient(circle at 50% 50%, rgba(255, 239, 196, 0.05), transparent 60%);
   color: var(--text-main);
   font-family: var(--font-sans);
   line-height: 1.6;
@@ -138,15 +142,17 @@ body {
 }
 
 .avatar {
-  width: 40px;
-  height: 40px;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--palette-peach), var(--palette-sky));
+  background: linear-gradient(135deg, #FF9D52 0%, #FFEFC4 50%, #C4E5FF 100%);
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 800;
+  font-size: 1.1rem;
   color: #0A1128;
+  box-shadow: 0 4px 14px rgba(255, 157, 82, 0.4);
 }
 
 .user-info h4 {
@@ -289,14 +295,15 @@ body {
 }
 
 .btn.primary {
-  background-color: var(--palette-peach);
+  background: linear-gradient(135deg, #FF9D52 0%, #FFEFC4 100%);
   color: #0A1128;
+  font-weight: 800;
 }
 
 .btn.primary:hover {
-  background-color: var(--palette-peach);
+  background: linear-gradient(135deg, #FF9D52 20%, #FFEFC4 100%);
   transform: translateY(-2px);
-  box-shadow: 0 4px 16px var(--accent-glow);
+  box-shadow: 0 6px 20px rgba(255, 157, 82, 0.45);
   color: #0A1128;
 }
 
