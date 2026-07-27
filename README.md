@@ -1,72 +1,106 @@
-# Blueprints: Resume ATS Tailor Tool
+# 🚀 TailorFit.ai — Real-Time AI Resume ATS Optimizer & Cover Letter Engine
 
-This is a premium, ready-to-code frontend template for an **AI-powered Resume Tailoring Tool**. The interface is pre-built with CSS styling and interactive JS simulations, so you can focus on writing the AI agent logic and database storage.
+[![Vercel Deployment](https://img.shields.io/badge/Vercel-03resumetailortool.vercel.app-brightgreen?style=for-the-badge&logo=vercel)](https://03resumetailortool.vercel.app)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
+[![Node.js](https://img.shields.io/badge/Node.js-18%2B-green?style=for-the-badge&logo=nodedotjs)](https://nodejs.org)
+[![SQLite WASM](https://img.shields.io/badge/SQLite-WASM-orange?style=for-the-badge&logo=sqlite)](https://sqlite.org)
+[![NVIDIA Nemotron](https://img.shields.io/badge/AI_Engine-NVIDIA_Nemotron_3_Ultra-76B900?style=for-the-badge&logo=nvidia)](https://integrate.api.nvidia.com)
 
-## Recommended Architecture
+> **TailorFit.ai** is an enterprise-grade AI career platform that scans applicant resumes against target job descriptions in real-time, calculates multi-metric ATS alignment scores, rewrites bullet points with quantifiable achievements, extracts missing keywords, and automatically generates tailored executive cover letters.
+
+---
+
+## 🌟 Key Features
+
+- **⚡ Real-Time ATS Score Calculation**: Instant comparison of original ATS match score vs. optimized target score (e.g. 48% ➡️ 94%).
+- **📊 4-Metric Sub-Score Breakdown**:
+  - 🔑 **Keyword Match %**
+  - 📐 **ATS Formatting Score %**
+  - 📊 **Quantified Metrics %**
+  - 🛠️ **Hard Skills Alignment %**
+- **✉️ Automated AI Cover Letter Builder**: Generates persuasive 3-paragraph executive cover letters addressed directly to the hiring manager.
+- **❌ Missing Keyword Extractor**: Highlights high-impact technical terms missing from the candidate's original resume.
+- **📥 Instant Export Options**: Single-click copy for optimized Markdown resume & cover letter + `.txt` file download.
+- **💡 Quick-Start Template Presets**: Built-in 1-click presets for Software Engineers and Product Managers.
+- **🛡️ Serverless Persistent Storage**: Embedded WASM SQLite database with zero-setup JWT authentication.
+
+---
+
+## 🏗️ System Architecture
 
 ```mermaid
 graph TD
-    Client[Web App / Frontend] -->|1. Submit Resume + Job Desc| API[Backend: Express / FastAPI]
-    API -->|2. Search & Fetch Template| DB[(Database: SQLite / Supabase)]
-    API -->|3. System Instruction + User Prompt| LLM[LLM API: Gemini / Claude]
-    LLM -->|4. Return Tailored Resume & Keyword Metrics| API
-    API -->|5. Return Optimized Output| Client
+    Client[📱 Web Application / UI] -->|1. Submit Resume + Job Description| API[⚡ Express Node.js Server]
+    API -->|2. Dispatch Context to LLM| NIM[🧠 NVIDIA Nemotron-3 Ultra 550B]
+    NIM -->|3. Return Structured ATS & Cover Letter JSON| API
+    API -->|4. Persist Scan History| DB[(🗄️ WASM SQLite /tmp/resume_tailor.db)]
+    API -->|5. Return Analysis & Markdown Outputs| Client
 ```
 
 ---
 
-## 🛠️ Step-by-Step Implementation Guide
+## 🚀 Live Demo & Deployment
 
-Follow these steps using Antigravity / Claude Code to build out the backend:
-
-### 1. Initialize Server & Dependencies
-Initialize a Node.js or Python backend. For example, using Express:
-```bash
-npm init -y
-npm install express dotenv cors google-genai zod
-```
-
-### 2. Configure JSON Output Schema
-Define the structured schema using Zod so that the LLM returns structured JSON data containing both the rewritten resume and lists of matched/missing keywords:
-```javascript
-import { z } from 'zod';
-
-const ResumeTailorResponse = z.object({
-  originalScore: z.number().describe("Initial alignment score (0-100)"),
-  optimizedScore: z.number().describe("Target alignment score after edits (0-100)"),
-  missingKeywordsAdded: z.array(z.string()).describe("List of keywords added to match job description"),
-  matchedKeywords: z.array(z.string()).describe("List of pre-existing keywords"),
-  optimizedResumeMarkdown: z.string().describe("The fully rewritten and tailored resume text in markdown format")
-});
-```
-
-### 3. Connect the LLM API
-Create a `/api/tailor` endpoint that runs the model:
-```javascript
-import { GoogleGenAI } from '@google/genai';
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-
-app.post('/api/tailor', async (req, res) => {
-  const { resume, jobDescription } = req.body;
-  
-  const response = await ai.models.generateContent({
-    model: 'gemini-2.5-pro', // Pro is recommended for complex reasoning/rewriting tasks
-    contents: `Tailor this resume: \n${resume}\n\nTo match this Job Description:\n${jobDescription}`,
-    config: {
-      responseMimeType: "application/json",
-      responseSchema: ResumeTailorResponse,
-      systemInstruction: "You are an expert HR recruiter and ATS optimizer. Rewrite the resume summary and bullets to organically weave in missing technical keywords from the job description without exaggerating experience."
-    }
-  });
-
-  res.json(JSON.parse(response.text));
-});
-```
+- **Live Web App**: [https://03resumetailortool.vercel.app](https://03resumetailortool.vercel.app)
+- **Local Port**: `http://localhost:3002`
 
 ---
 
-## 🚀 How to Run locally
-Simply open `index.html` in your browser, or spin up a local development server:
-```bash
-npx live-server .
-```
+## 🛠️ Tech Stack
+
+- **Frontend**: Vanilla HTML5, CSS3 (Modern Light Glassmorphism), JavaScript (ES6+)
+- **Backend**: Node.js, Express.js
+- **Database**: SQLite (via `sql.js` WASM engine for serverless compatibility)
+- **Authentication**: JSON Web Tokens (JWT) + `bcryptjs`
+- **AI Gateway**: OpenAI SDK / NVIDIA Nemotron-3 Ultra 550B (OmniRoute API)
+- **Hosting**: Vercel Serverless Functions (`@vercel/node`)
+
+---
+
+## 💻 Local Setup & Installation
+
+1. **Clone the Repository**:
+   ```bash
+   git clone https://github.com/voidreformer/tailorfit-ai.git
+   cd tailorfit-ai
+   ```
+
+2. **Install Dependencies**:
+   ```bash
+   npm install
+   ```
+
+3. **Configure Environment Variables**:
+   Create a `.env` file in the root directory:
+   ```env
+   PORT=3002
+   JWT_SECRET=your_jwt_secret_here
+   OMNIROUTE_GATEWAY_URL=https://integrate.api.nvidia.com/v1
+   OMNIROUTE_API_KEY=your_nvidia_api_key
+   MODEL_NAME=nvidia/nemotron-3-ultra-550b-a55b
+   ```
+
+4. **Run Development Server**:
+   ```bash
+   npm start
+   ```
+   Open `http://localhost:3002` in your browser.
+
+---
+
+## 🛰️ API Endpoints
+
+| Method | Endpoint | Description | Auth Required |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/api/analyze` | Scans resume against job description, optimizes bullets & generates cover letter | Optional Token |
+| `GET` | `/api/history` | Retrieves past saved resume scans from WASM SQLite DB | Optional Token |
+| `DELETE` | `/api/history/:id` | Deletes a saved scan record by ID | Required |
+| `POST` | `/api/auth/register` | Registers a new user account | No |
+| `POST` | `/api/auth/login` | Authenticates user and returns JWT token | No |
+| `GET` | `/api/auth/me` | Fetches current user profile details | Required |
+
+---
+
+## 📜 License
+
+Distributed under the **MIT License**. See `LICENSE` for more information.
