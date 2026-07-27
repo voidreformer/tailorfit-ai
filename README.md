@@ -101,6 +101,15 @@ graph TD
 
 ---
 
+## 👨‍💻 Author & Built By
+
+Developed with ❤️ as part of the **12 AI Blueprints Series**.
+
+- **GitHub Profile**: [@voidreformer](https://github.com/voidreformer)
+- **Live Platform**: [https://03resumetailortool.vercel.app](https://03resumetailortool.vercel.app)
+
+---
+
 ## 📜 License
 
 Distributed under the **MIT License**. See `LICENSE` for more information.
