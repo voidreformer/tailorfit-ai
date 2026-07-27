@@ -466,3 +466,8 @@ body {
     padding: 1.5rem;
   }
 }
+
+/* Global Hidden Utility Class */
+.hidden {
+  display: none !important;
+}

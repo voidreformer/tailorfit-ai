@@ -47,6 +47,14 @@
         </header>
 
         <!-- Step 1: Input forms side by side -->
+        <!-- Preset Samples Row -->
+        <div style="display: flex; gap: 10px; margin-bottom: 16px; align-items: center; flex-wrap: wrap;">
+          <span style="font-size: 13px; color: #94a3b8; font-weight: 500;">⚡ Quick Demo Presets:</span>
+          <button id="sample-swe-btn" class="btn secondary btn-sm" style="font-size: 12px; padding: 4px 12px;">💻 Software Engineer Sample</button>
+          <button id="sample-pm-btn" class="btn secondary btn-sm" style="font-size: 12px; padding: 4px 12px;">📊 Product Manager Sample</button>
+        </div>
+
+        <!-- Step 1: Input forms side by side -->
         <div class="dashboard-grid">
           <section class="card input-card">
             <div class="card-header">
@@ -58,15 +66,15 @@
 
           <section class="card input-card">
             <div class="card-header">
-              <h3>2. Paste the Target Job Description</h3>
-              <span class="lbl-limit">Job Ad Text</span>
+              <h3>2. Paste Target Job Description</h3>
+              <span class="lbl-limit">Job Requirements Text</span>
             </div>
             <textarea id="job-input" placeholder="Paste the full job description / requirements here..."></textarea>
           </section>
         </div>
 
         <div class="action-btn-row" style="margin-top: 16px;">
-          <button id="optimize-btn" class="btn primary">Scan & Optimize Resume</button>
+          <button id="optimize-btn" class="btn primary" style="font-size: 16px; padding: 12px 28px;">Scan & Tailor ATS Resume + Cover Letter</button>
         </div>
 
         <!-- Step 2: Analysis & Output Panel (Hidden by default) -->
@@ -87,6 +95,26 @@
                     <span class="score-lbl">Optimized Score</span>
                   </div>
                 </div>
+
+                <!-- ATS Sub-score breakdown grid -->
+                <div style="margin-top: 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 12px;">
+                  <div style="background: rgba(255,255,255,0.03); padding: 8px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.08);">
+                    <span style="color: #94a3b8;">🔑 Keyword Match</span>
+                    <div id="sub-kw-match" style="font-weight: 700; color: #10b981; font-size: 15px;">92%</div>
+                  </div>
+                  <div style="background: rgba(255,255,255,0.03); padding: 8px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.08);">
+                    <span style="color: #94a3b8;">📐 Formatting</span>
+                    <div id="sub-fmt" style="font-weight: 700; color: #3b82f6; font-size: 15px;">96%</div>
+                  </div>
+                  <div style="background: rgba(255,255,255,0.03); padding: 8px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.08);">
+                    <span style="color: #94a3b8;">📊 Metrics %</span>
+                    <div id="sub-metrics" style="font-weight: 700; color: #f59e0b; font-size: 15px;">90%</div>
+                  </div>
+                  <div style="background: rgba(255,255,255,0.03); padding: 8px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.08);">
+                    <span style="color: #94a3b8;">🛠️ Hard Skills</span>
+                    <div id="sub-skills" style="font-weight: 700; color: #ec4899; font-size: 15px;">94%</div>
+                  </div>
+                </div>
               </div>
 
               <div class="card keywords-card" style="margin-top: 16px;">
@@ -102,14 +130,30 @@
               </div>
             </div>
 
-            <!-- Right: Optimized Output Resume -->
+            <!-- Right: Tailored Resume & Cover Letter Tabs -->
             <div class="card output-resume-card">
-              <div class="card-header">
-                <h3>Optimized Tailored Resume</h3>
-                <button id="copy-btn" class="btn secondary btn-sm">Copy Resume</button>
+              <div class="card-header" style="flex-wrap: wrap; gap: 10px;">
+                <div style="display: flex; gap: 8px;">
+                  <button id="tab-btn-resume" class="btn primary btn-sm">📄 Optimized Resume</button>
+                  <button id="tab-btn-cover" class="btn secondary btn-sm">✉️ Tailored Cover Letter</button>
+                </div>
+                <div style="display: flex; gap: 6px;">
+                  <button id="copy-btn" class="btn secondary btn-sm">📋 Copy Active</button>
+                  <button id="export-txt-btn" class="btn secondary btn-sm">📥 Export TXT</button>
+                </div>
               </div>
-              <p id="executive-summary-display" style="font-size: 13px; color: var(--accent-primary); margin-bottom: 12px; font-weight: 500;"></p>
-              <textarea id="output-resume-content" rows="16" readonly></textarea>
+
+              <p id="executive-summary-display" style="font-size: 13px; color: var(--accent-primary); margin: 12px 0; font-weight: 500;"></p>
+              
+              <!-- Tab 1 Content: Resume -->
+              <div id="tab-content-resume">
+                <textarea id="output-resume-content" rows="18" readonly></textarea>
+              </div>
+
+              <!-- Tab 2 Content: Cover Letter -->
+              <div id="tab-content-cover" class="hidden">
+                <textarea id="output-cover-content" rows="18" readonly></textarea>
+              </div>
             </div>
           </div>
         </div>

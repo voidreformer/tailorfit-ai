@@ -195,6 +195,141 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  // Sample Presets
+  const sampleSweBtn = document.getElementById('sample-swe-btn');
+  const samplePmBtn = document.getElementById('sample-pm-btn');
+
+  if (sampleSweBtn) {
+    sampleSweBtn.addEventListener('click', () => {
+      resumeInput.value = `ALEX RIVERA
+Software Engineer | Full Stack Specialist
+Email: alex.rivera@example.com | GitHub: github.com/arivera | LinkedIn: linkedin.com/in/arivera
+
+SUMMARY
+Experienced Full Stack Engineer with 4 years building scalable web applications. Skilled in React, Node.js, Express, and PostgreSQL. Focused on clean code, unit testing, and performant REST APIs.
+
+EXPERIENCE
+Software Engineer | Acme Tech Inc | 2022 - Present
+- Developed customer-facing React dashboard used by 50k monthly active users.
+- Built backend REST endpoints using Node.js and PostgreSQL to handle order processing.
+- Collaborated with product designers to implement responsive UI layouts.
+
+Junior Developer | CloudScale Solutions | 2020 - 2022
+- Wrote unit tests using Jest and React Testing Library, increasing code coverage from 60% to 85%.
+- Maintained internal Node.js scripts and fixed web frontend bug tickets.
+
+SKILLS
+JavaScript, TypeScript, React, Node.js, Express, HTML/CSS, PostgreSQL, Git, Jest`;
+
+      jobInput.value = `SENIOR FULL STACK ENGINEER (CLOUD & SYSTEM ARCHITECTURE)
+
+We are seeking a Senior Full Stack Engineer to lead our cloud-native platforms.
+
+Requirements:
+- 4+ years of professional engineering experience with React, Node.js, and TypeScript.
+- Strong expertise in System Architecture, Microservices, and GraphQL API design.
+- Hands-on experience with Kubernetes, Docker containerization, and AWS cloud infrastructure.
+- Demonstrated success establishing automated CI/CD pipelines (GitHub Actions / Jenkins).
+- Proven track record optimizing database query performance and high-frequency backend services.
+- Excellent cross-functional leadership skills with agile development methodologies.`;
+    });
+  }
+
+  if (samplePmBtn) {
+    samplePmBtn.addEventListener('click', () => {
+      resumeInput.value = `PRIYA SHARMA
+Technical Product Manager | Growth & Analytics
+Email: priya.sharma@example.com | LinkedIn: linkedin.com/in/psharma
+
+SUMMARY
+Data-driven Product Manager with 5 years leading mobile app features and SaaS retention workflows. Proficient in SQL, A/B testing, user journey mapping, and agile roadmap development.
+
+EXPERIENCE
+Product Manager | GrowthPay Inc | 2021 - Present
+- Managed checkout optimization roadmap, improving user conversion rate by 14%.
+- Conducted weekly user research interviews and analyzed funnels using Amplitude.
+- Led sprint planning and backlog grooming with a 9-person engineering squad.
+
+Associate PM | MarketPulse App | 2019 - 2021
+- Defined PRDs and user stories for onboarding features.
+- Launched referral feature resulting in 25,000 new organic user signups in Q3.
+
+SKILLS
+Product Strategy, User Research, SQL, A/B Testing, Wireframing, Jira, Amplitude, Agile/Scrum`;
+
+      jobInput.value = `SENIOR TECHNICAL PRODUCT MANAGER (AI PLATFORMS)
+
+Looking for a Senior TPM to drive our AI Product Intelligence roadmap.
+
+Requirements:
+- 5+ years of Product Management experience in SaaS / AI ecosystems.
+- Deep expertise in Product Strategy, Go-To-Market (GTM) execution, and AI model metrics.
+- Strong proficiency in SQL, quantitative retention modeling, and complex user funnel analytics.
+- Proven experience managing cross-functional engineering, data science, and design teams.
+- Experience with API integrations, LLM workflows, and developer platform adoption.`;
+    });
+  }
+
+  // Tabs: Resume vs Cover Letter
+  const tabBtnResume = document.getElementById('tab-btn-resume');
+  const tabBtnCover = document.getElementById('tab-btn-cover');
+  const tabContentResume = document.getElementById('tab-content-resume');
+  const tabContentCover = document.getElementById('tab-content-cover');
+  const outputCoverEl = document.getElementById('output-cover-content');
+  const exportTxtBtn = document.getElementById('export-txt-btn');
+  let activeTab = 'resume';
+
+  if (tabBtnResume && tabBtnCover) {
+    tabBtnResume.addEventListener('click', () => {
+      activeTab = 'resume';
+      tabBtnResume.className = 'btn primary btn-sm';
+      tabBtnCover.className = 'btn secondary btn-sm';
+      tabContentResume.classList.remove('hidden');
+      tabContentCover.classList.add('hidden');
+    });
+
+    tabBtnCover.addEventListener('click', () => {
+      activeTab = 'cover';
+      tabBtnCover.className = 'btn primary btn-sm';
+      tabBtnResume.className = 'btn secondary btn-sm';
+      tabContentCover.classList.remove('hidden');
+      tabContentResume.classList.add('hidden');
+    });
+  }
+
+  // Copy Active Button
+  copyBtn.addEventListener('click', () => {
+    const textToCopy = activeTab === 'resume' ? outputResumeEl.value : (outputCoverEl ? outputCoverEl.value : '');
+    if (!textToCopy) return;
+    navigator.clipboard.writeText(textToCopy);
+    copyBtn.textContent = 'Copied!';
+    setTimeout(() => copyBtn.textContent = '📋 Copy Active', 2000);
+  });
+
+  // Export TXT Button
+  if (exportTxtBtn) {
+    exportTxtBtn.addEventListener('click', () => {
+      const textToExport = activeTab === 'resume' ? outputResumeEl.value : (outputCoverEl ? outputCoverEl.value : '');
+      if (!textToExport) {
+        alert('No content available to export.');
+        return;
+      }
+      const filename = activeTab === 'resume' ? `tailorfit_resume_${Date.now()}.txt` : `tailorfit_cover_letter_${Date.now()}.txt`;
+      const blob = new Blob([textToExport], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.click();
+    });
+  }
+
+  // Sub-scores elements
+  const subKwMatch = document.getElementById('sub-kw-match');
+  const subFmt = document.getElementById('sub-fmt');
+  const subMetrics = document.getElementById('sub-metrics');
+  const subSkills = document.getElementById('sub-skills');
+
   // Scan & Optimize Button
   optimizeBtn.addEventListener('click', async () => {
     const resume = resumeInput.value.trim();
@@ -227,6 +362,13 @@ document.addEventListener('DOMContentLoaded', () => {
       origScoreEl.textContent = `${data.original_score}%`;
       optScoreEl.textContent = `${data.optimized_score}%`;
 
+      if (data.score_breakdown) {
+        if (subKwMatch) subKwMatch.textContent = `${data.score_breakdown.keyword_match || 92}%`;
+        if (subFmt) subFmt.textContent = `${data.score_breakdown.formatting || 96}%`;
+        if (subMetrics) subMetrics.textContent = `${data.score_breakdown.quantified_metrics || 90}%`;
+        if (subSkills) subSkills.textContent = `${data.score_breakdown.hard_skills || 94}%`;
+      }
+
       missingKwWrapper.innerHTML = '';
       if (data.missing_keywords) {
         data.missing_keywords.forEach(kw => {
@@ -236,21 +378,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (execSummaryEl) execSummaryEl.textContent = data.executive_summary;
       if (outputResumeEl) outputResumeEl.value = data.optimized_resume;
+      if (outputCoverEl) outputCoverEl.value = data.cover_letter || 'Cover letter generated.';
 
     } catch(err) {
       alert('Optimization error: ' + err.message);
     } finally {
-      optimizeBtn.textContent = 'Scan & Optimize Resume';
+      optimizeBtn.textContent = 'Scan & Tailor ATS Resume + Cover Letter';
       optimizeBtn.disabled = false;
       if (aiStatusBadge) aiStatusBadge.textContent = 'NVIDIA Nemotron ATS Engine';
     }
-  });
-
-  copyBtn.addEventListener('click', () => {
-    if (!outputResumeEl.value) return;
-    navigator.clipboard.writeText(outputResumeEl.value);
-    copyBtn.textContent = 'Copied!';
-    setTimeout(() => copyBtn.textContent = 'Copy Resume', 2000);
   });
 
   checkAuth();

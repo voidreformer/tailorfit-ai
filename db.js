@@ -60,6 +60,8 @@ async function initDb() {
           missing_keywords TEXT,
           optimized_resume TEXT,
           executive_summary TEXT,
+          cover_letter TEXT,
+          score_breakdown TEXT,
           created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
           FOREIGN KEY(user_id) REFERENCES users(id)
         )
@@ -138,11 +140,12 @@ module.exports = {
     const id = uuidv4();
     if (!db) return { id, ...analysisData };
     const missingKwStr = JSON.stringify(analysisData.missing_keywords || []);
+    const scoreBreakdownStr = JSON.stringify(analysisData.score_breakdown || {});
 
     try {
       db.run(`
-        INSERT INTO resume_analyses (id, user_id, original_resume, job_description, original_score, optimized_score, missing_keywords, optimized_resume, executive_summary)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO resume_analyses (id, user_id, original_resume, job_description, original_score, optimized_score, missing_keywords, optimized_resume, executive_summary, cover_letter, score_breakdown)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `, [
         id,
         userId || null,
@@ -152,7 +155,9 @@ module.exports = {
         analysisData.optimized_score || 0,
         missingKwStr,
         analysisData.optimized_resume || '',
-        analysisData.executive_summary || ''
+        analysisData.executive_summary || '',
+        analysisData.cover_letter || '',
+        scoreBreakdownStr
       ]);
 
       saveDb();
@@ -170,7 +175,8 @@ module.exports = {
 
     return rows.map(r => ({
       ...r,
-      missing_keywords: r.missing_keywords ? JSON.parse(r.missing_keywords) : []
+      missing_keywords: r.missing_keywords ? JSON.parse(r.missing_keywords) : [],
+      score_breakdown: r.score_breakdown ? JSON.parse(r.score_breakdown) : {}
     }));
   },
 
