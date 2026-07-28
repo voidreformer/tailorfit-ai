@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="100%" height="100%">
+  <defs>
+    <radialGradient id="bgTailor" cx="50%" cy="50%" r="75%">
+      <stop offset="0%" stop-color="#241a04" />
+      <stop offset="100%" stop-color="#080501" />
+    </radialGradient>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffd700" />
+      <stop offset="50%" stop-color="#ffb700" />
+      <stop offset="100%" stop-color="#ff7700" />
+    </linearGradient>
+    <filter id="glowTailor" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="12" result="blur" />
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <rect width="800" height="800" rx="32" fill="url(#bgTailor)" stroke="rgba(255, 215, 0, 0.25)" stroke-width="2"/>
+  
+  <g filter="url(#glowTailor)" transform="translate(400, 350)">
+    <!-- Document Shield Fold -->
+    <path d="M-110,-150 L60,-150 L120,-90 L120,150 C120,170 100,180 80,180 L-110,180 C-130,180 -140,170 -140,150 L-140,-120 C-140,-140 -130,-150 -110,-150 Z" fill="rgba(255,215,0,0.06)" stroke="url(#goldGrad)" stroke-width="10" stroke-linejoin="round"/>
+    <path d="M60,-150 L60,-90 L120,-90" fill="none" stroke="url(#goldGrad)" stroke-width="8"/>
+    
+    <!-- Gold Tailor Needle & Golden Thread Flow Loop -->
+    <path d="M-90,60 L60,-90" stroke="url(#goldGrad)" stroke-width="14" stroke-linecap="round"/>
+    <polygon points="60,-90 85,-115 50,-100" fill="#ffd700"/>
+    <path d="M-90,60 C-120,90 -120,140 -60,130 C0,120 40,20 90,80" fill="none" stroke="#ffffff" stroke-width="5" stroke-linecap="round" stroke-dasharray="8 6"/>
+  </g>
+  
+  <text x="400" y="670" text-anchor="middle" font-family="'Outfit', sans-serif" font-weight="900" font-size="46" letter-spacing="6">
+    <tspan fill="#ffffff">TAILOR</tspan><tspan fill="#ffd700">RESUME.AI</tspan>
+  </text>
+  <text x="400" y="715" text-anchor="middle" font-family="'Share Tech Mono', monospace" font-size="18" fill="#8ca3be" letter-spacing="8">
+    AI RESUME TAILORING &amp; OPTIMIZATION
+  </text>
+</svg>
