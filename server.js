@@ -28,6 +28,11 @@ app.get('/app.js', (req, res) => {
   res.sendFile(path.join(__dirname, 'app.js'));
 });
 
+app.get('/logo.svg', (req, res) => {
+  res.setHeader('Content-Type', 'image/svg+xml');
+  res.sendFile(path.join(__dirname, 'logo.svg'));
+});
+
 const JWT_SECRET = process.env.JWT_SECRET || 'tailorfit_ai_jwt_secret_2026';
 const PORT = process.env.PORT || 3002;
 
