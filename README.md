@@ -30,11 +30,11 @@
 
 ```mermaid
 graph TD
-    Client[📱 Web Application / UI] -->|1. Submit Resume + Job Description| API[⚡ Express Node.js Server]
-    API -->|2. Dispatch Context to LLM| NIM[🧠 NVIDIA Nemotron-3 Ultra 550B]
-    NIM -->|3. Return Structured ATS & Cover Letter JSON| API
-    API -->|4. Persist Scan History| DB[(🗄️ WASM SQLite /tmp/resume_tailor.db)]
-    API -->|5. Return Analysis & Markdown Outputs| Client
+    Client["📱 Web Application / UI"] -->|"1. Submit Resume + Job Description"| API["⚡ Express Node.js Server"]
+    API -->|"2. Dispatch Context to LLM"| NIM["🧠 NVIDIA Nemotron-3 Ultra 550B"]
+    NIM -->|"3. Return Structured ATS & Cover Letter JSON"| API
+    API -->|"4. Persist Scan History"| DB[("🗄️ WASM SQLite /tmp/resume_tailor.db")]
+    API -->|"5. Return Analysis & Markdown Outputs"| Client
 ```
 
 ---
