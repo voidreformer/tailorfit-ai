@@ -3,6 +3,24 @@
   "version": "1.1.0",
   "description": "AI Resume ATS Optimizer and Job Bullet Tailor powered by NVIDIA Nemotron, SQLite WASM, and Personal Snippet Vault",
   "main": "server.js",
+  "bin": {
+    "tailorfit-ai": "./bin/cli.js"
+  },
+  "keywords": [
+    "resume",
+    "ats",
+    "ai",
+    "optimizer",
+    "cover-letter",
+    "job-hunting",
+    "career"
+  ],
+  "author": "Rudra Attri Pandey",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/voidreformer/tailorfit-ai.git"
+  },
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js"
