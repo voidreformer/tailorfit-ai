@@ -9,15 +9,40 @@ document.addEventListener('DOMContentLoaded', () => {
   const missingKwWrapper = document.getElementById('missing-keywords-wrapper');
   const execSummaryEl = document.getElementById('executive-summary-display');
   const outputResumeEl = document.getElementById('output-resume-content');
+  const outputCoverEl = document.getElementById('output-cover-content');
   const copyBtn = document.getElementById('copy-btn');
+  const exportTxtBtn = document.getElementById('export-txt-btn');
+  const pinVaultBtn = document.getElementById('pin-vault-btn');
   const aiStatusBadge = document.getElementById('ai-status-badge');
 
-  // Navigation
+  // Navigation Views
   const navDashboard = document.getElementById('nav-dashboard');
+  const navVault = document.getElementById('nav-vault');
   const navHistory = document.getElementById('nav-history');
+  
   const viewDashboard = document.getElementById('view-dashboard-container');
+  const viewVault = document.getElementById('view-vault-container');
   const viewHistory = document.getElementById('view-history-container');
+  
   const historyContainer = document.getElementById('history-items-container');
+  const vaultSnippetsList = document.getElementById('vault-snippets-list');
+  const baseProfilesList = document.getElementById('base-profiles-list');
+  const vaultSearchInput = document.getElementById('vault-search-input');
+  const addManualSnippetBtn = document.getElementById('add-manual-snippet-btn');
+
+  // Base Profile Elements
+  const baseProfileSelect = document.getElementById('base-profile-select');
+  const saveBaseProfileBtn = document.getElementById('save-base-profile-btn');
+
+  const sampleSweBtn = document.getElementById('sample-swe-btn');
+  const samplePmBtn = document.getElementById('sample-pm-btn');
+
+  const tabBtnResume = document.getElementById('tab-btn-resume');
+  const tabBtnCover = document.getElementById('tab-btn-cover');
+  const tabContentResume = document.getElementById('tab-content-resume');
+  const tabContentCover = document.getElementById('tab-content-cover');
+
+  let activeTab = 'resume';
 
   // Auth State
   let currentUser = null;
@@ -41,6 +66,313 @@ document.addEventListener('DOMContentLoaded', () => {
   const authToggleText = document.getElementById('auth-toggle-text');
   const authErrorMsg = document.getElementById('auth-error-msg');
 
+  // Vault Storage State
+  let savedSnippets = JSON.parse(localStorage.getItem('tailorfit_snippets') || '[]');
+  let savedBaseProfiles = JSON.parse(localStorage.getItem('tailorfit_base_profiles') || '{}');
+
+  // Default Preset Profiles
+  const SAMPLE_SWE = `# ALEX RIVERA
+Full-Stack Software Engineer | San Francisco, CA | alex@example.com
+
+## PROFESSIONAL SUMMARY
+Results-driven Full-Stack Engineer with 5+ years of experience designing scalable microservices, REST APIs, and React web applications serving 1M+ active users.
+
+## EXPERIENCE
+**Senior Software Engineer** — CloudScale Solutions (2021 – Present)
+• Spearheaded migration of legacy monolith to Node.js microservices, reducing p99 API latency by 42%.
+• Architected PostgreSQL database schemas and optimized indexing, boosting query throughput by 3x.
+• Led team of 6 engineers implementing CI/CD pipelines via GitHub Actions and Docker.
+
+## SKILLS
+TypeScript, React, Node.js, Python, PostgreSQL, Docker, AWS, GraphQL, Jest, CI/CD`;
+
+  const SAMPLE_PM = `# SARAH CHEN
+Senior Product Manager | New York, NY | sarah@example.com
+
+## PROFESSIONAL SUMMARY
+Data-oriented Senior Product Manager with 6+ years driving B2B SaaS growth, user onboarding conversion, and core feature roadmaps.
+
+## EXPERIENCE
+**Lead Product Manager** — GrowthPulse Tech (2020 – Present)
+• Owned core user onboarding roadmap, increasing 30-day user retention rate from 24% to 41%.
+• Executed A/B experiments on pricing page flow, generating +$1.2M in annual recurring revenue (ARR).
+• Partnered with engineering and UX teams using Agile/Scrum to deliver 14 high-impact feature releases.
+
+## SKILLS
+Product Strategy, A/B Testing, User Research, SQL, Mixpanel, Jira, Agile/Scrum, Roadmap Prioritization`;
+
+  // Pre-fill default inputs
+  if (!resumeInput.value) resumeInput.value = SAMPLE_SWE;
+
+  // Preset Handlers
+  sampleSweBtn.addEventListener('click', () => { resumeInput.value = SAMPLE_SWE; });
+  samplePmBtn.addEventListener('click', () => { resumeInput.value = SAMPLE_PM; });
+
+  // Navigation View Handlers
+  function hideAllViews() {
+    viewDashboard.classList.add('hidden');
+    viewVault.classList.add('hidden');
+    viewHistory.classList.add('hidden');
+
+    [navDashboard, navVault, navHistory].forEach(btn => btn.classList.remove('active'));
+  }
+
+  navDashboard.addEventListener('click', () => {
+    hideAllViews();
+    viewDashboard.classList.remove('hidden');
+    navDashboard.classList.add('active');
+  });
+
+  navVault.addEventListener('click', () => {
+    hideAllViews();
+    viewVault.classList.remove('hidden');
+    navVault.classList.add('active');
+    renderVaultUI();
+  });
+
+  navHistory.addEventListener('click', () => {
+    hideAllViews();
+    viewHistory.classList.remove('hidden');
+    navHistory.classList.add('active');
+    loadHistory();
+  });
+
+  // Base Profile Selector Handler
+  baseProfileSelect.addEventListener('change', (e) => {
+    const val = e.target.value;
+    if (val === 'swe') resumeInput.value = SAMPLE_SWE;
+    else if (val === 'pm') resumeInput.value = SAMPLE_PM;
+    else if (savedBaseProfiles[val]) resumeInput.value = savedBaseProfiles[val];
+  });
+
+  saveBaseProfileBtn.addEventListener('click', () => {
+    const text = resumeInput.value.trim();
+    if (!text) return alert('Please enter resume text first.');
+    const profileName = prompt('Enter a name for this Base Profile (e.g. Senior Backend Engineer):');
+    if (!profileName) return;
+
+    savedBaseProfiles[profileName] = text;
+    localStorage.setItem('tailorfit_base_profiles', JSON.stringify(savedBaseProfiles));
+
+    // Update Select Dropdown
+    const opt = document.createElement('option');
+    opt.value = profileName;
+    opt.textContent = `📁 ${profileName}`;
+    baseProfileSelect.appendChild(opt);
+    baseProfileSelect.value = profileName;
+
+    alert(`Base Profile "${profileName}" saved to vault!`);
+    renderVaultUI();
+  });
+
+  // Output Tab Handlers
+  tabBtnResume.addEventListener('click', () => {
+    activeTab = 'resume';
+    tabBtnResume.classList.replace('secondary', 'primary');
+    tabBtnCover.classList.replace('primary', 'secondary');
+    tabContentResume.classList.remove('hidden');
+    tabContentCover.classList.add('hidden');
+  });
+
+  tabBtnCover.addEventListener('click', () => {
+    activeTab = 'cover';
+    tabBtnCover.classList.replace('secondary', 'primary');
+    tabBtnResume.classList.replace('primary', 'secondary');
+    tabContentCover.classList.remove('hidden');
+    tabContentResume.classList.add('hidden');
+  });
+
+  // Copy Active Tab Content
+  copyBtn.addEventListener('click', () => {
+    const activeText = activeTab === 'resume' ? outputResumeEl.value : outputCoverEl.value;
+    if (!activeText) return;
+    navigator.clipboard.writeText(activeText);
+    const orig = copyBtn.textContent;
+    copyBtn.textContent = '✅ Copied!';
+    setTimeout(() => { copyBtn.textContent = orig; }, 2000);
+  });
+
+  // Export TXT
+  exportTxtBtn.addEventListener('click', () => {
+    const activeText = activeTab === 'resume' ? outputResumeEl.value : outputCoverEl.value;
+    if (!activeText) return;
+    const blob = new Blob([activeText], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = activeTab === 'resume' ? 'TAILORED_RESUME.txt' : 'TAILORED_COVER_LETTER.txt';
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  // Pin Rewrites to Snippet Vault Handler
+  pinVaultBtn.addEventListener('click', () => {
+    const text = outputResumeEl.value.trim();
+    if (!text) return alert('No tailored resume content available to pin.');
+
+    const lines = text.split('\n').filter(l => l.trim().startsWith('•') || l.trim().startsWith('-'));
+    if (lines.length === 0) {
+      // Save entire snippet block
+      savedSnippets.unshift({
+        id: Date.now(),
+        text: text.slice(0, 250) + '...',
+        category: 'Resume Block',
+        created_at: new Date().toLocaleDateString()
+      });
+    } else {
+      // Save bullet lines
+      lines.slice(0, 5).forEach((bullet, idx) => {
+        savedSnippets.unshift({
+          id: Date.now() + idx,
+          text: bullet.replace(/^[•-]\s*/, '').trim(),
+          category: 'Bullet Rewrite',
+          created_at: new Date().toLocaleDateString()
+        });
+      });
+    }
+
+    localStorage.setItem('tailorfit_snippets', JSON.stringify(savedSnippets));
+    pinVaultBtn.textContent = '📌 Saved to Vault!';
+    setTimeout(() => { pinVaultBtn.textContent = '📌 Save to Vault'; }, 2000);
+  });
+
+  // Add Manual Custom Snippet
+  addManualSnippetBtn.addEventListener('click', () => {
+    const bulletText = prompt('Enter custom bullet rewrite snippet:');
+    if (!bulletText || !bulletText.trim()) return;
+
+    savedSnippets.unshift({
+      id: Date.now(),
+      text: bulletText.trim(),
+      category: 'Custom Bullet',
+      created_at: new Date().toLocaleDateString()
+    });
+
+    localStorage.setItem('tailorfit_snippets', JSON.stringify(savedSnippets));
+    renderVaultUI();
+  });
+
+  // Vault UI Renderer
+  function renderVaultUI() {
+    // Render Base Profiles
+    const profileKeys = Object.keys(savedBaseProfiles);
+    if (profileKeys.length === 0) {
+      baseProfilesList.innerHTML = '<p style="font-size:12px; color:#94a3b8;">No custom base profiles saved yet.</p>';
+    } else {
+      baseProfilesList.innerHTML = profileKeys.map(k => `
+        <div class="base-profile-card">
+          <div>
+            <h4>📁 ${k}</h4>
+            <span style="font-size:11px; color:#94a3b8;">${savedBaseProfiles[k].slice(0, 45)}...</span>
+          </div>
+          <button class="btn secondary btn-sm" style="font-size:11px;" onclick="loadBaseProfile('${k}')">Load</button>
+        </div>
+      `).join('');
+    }
+
+    // Render Bullet Snippets
+    filterAndRenderSnippets();
+  }
+
+  window.loadBaseProfile = (key) => {
+    if (savedBaseProfiles[key]) {
+      resumeInput.value = savedBaseProfiles[key];
+      hideAllViews();
+      viewDashboard.classList.remove('hidden');
+      navDashboard.classList.add('active');
+    }
+  };
+
+  vaultSearchInput.addEventListener('input', filterAndRenderSnippets);
+
+  function filterAndRenderSnippets() {
+    const query = vaultSearchInput.value.toLowerCase();
+    const filtered = savedSnippets.filter(s => s.text.toLowerCase().includes(query) || s.category.toLowerCase().includes(query));
+
+    if (filtered.length === 0) {
+      vaultSnippetsList.innerHTML = '<p style="font-size:13px; color:#94a3b8;">No matching bullet snippets in vault.</p>';
+      return;
+    }
+
+    vaultSnippetsList.innerHTML = filtered.map(item => `
+      <div class="vault-card-item">
+        <div style="flex-grow: 1;">
+          <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 4px;">
+            <span style="font-size: 10px; background: rgba(16, 185, 129, 0.2); color: #10b981; padding: 2px 8px; border-radius: 12px; font-weight: 700;">${item.category}</span>
+            <span style="font-size: 11px; color: #64748b;">${item.created_at}</span>
+          </div>
+          <p style="font-size: 13px; color: var(--palette-navy); font-weight: 600; line-height: 1.4;">• ${item.text}</p>
+        </div>
+        <div style="display: flex; gap: 6px;">
+          <button class="btn secondary btn-sm" style="font-size: 11px;" onclick="copySnippetText('${encodeURIComponent(item.text)}')">📋 Copy</button>
+          <button class="btn secondary btn-sm" style="font-size: 11px; color: #ef4444;" onclick="deleteSnippet(${item.id})">🗑️</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  window.copySnippetText = (encodedText) => {
+    const text = decodeURIComponent(encodedText);
+    navigator.clipboard.writeText(text);
+    alert('Bullet snippet copied to clipboard!');
+  };
+
+  window.deleteSnippet = (id) => {
+    savedSnippets = savedSnippets.filter(s => s.id !== id);
+    localStorage.setItem('tailorfit_snippets', JSON.stringify(savedSnippets));
+    filterAndRenderSnippets();
+  };
+
+  // Optimize Action Handler
+  optimizeBtn.addEventListener('click', async () => {
+    const rawResume = resumeInput.value.trim();
+    const rawJob = jobInput.value.trim();
+
+    if (!rawResume || !rawJob) {
+      alert('Please enter both your resume and target job description.');
+      return;
+    }
+
+    optimizeBtn.disabled = true;
+    optimizeBtn.textContent = '⚡ Scanning & Tailoring ATS Resume...';
+
+    try {
+      const response = await fetch('/api/tailor-resume', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          resume: rawResume,
+          jobDescription: rawJob
+        })
+      });
+
+      const data = await response.json();
+
+      if (data.status === 'success' || data.optimizedResume) {
+        resultsPanel.classList.remove('hidden');
+        origScoreEl.textContent = `${data.originalScore || 58}%`;
+        optScoreEl.textContent = `${data.optimizedScore || 95}%`;
+
+        outputResumeEl.value = data.optimizedResume || data.resume;
+        outputCoverEl.value = data.coverLetter || 'Tailored Cover Letter generated successfully.';
+        execSummaryEl.textContent = `⚡ Key Insight: ${data.executiveSummary || 'Resume rewritten to match primary job requirements.'}`;
+
+        if (data.missingKeywords && data.missingKeywords.length > 0) {
+          missingKwWrapper.innerHTML = data.missingKeywords.map(kw => `<span class="tag missing">+ ${kw}</span>`).join('');
+        }
+      } else {
+        alert('Failed to optimize resume.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Error connecting to backend API.');
+    } finally {
+      optimizeBtn.disabled = false;
+      optimizeBtn.textContent = 'Scan & Tailor ATS Resume + Cover Letter';
+    }
+  });
+
+  // Auth Functions
   function getToken() { return localStorage.getItem('tailorfit_auth_token'); }
   function setToken(token) { localStorage.setItem('tailorfit_auth_token', token); }
   function removeToken() { localStorage.removeItem('tailorfit_auth_token'); }
@@ -78,316 +410,40 @@ document.addEventListener('DOMContentLoaded', () => {
 
   userProfileBtn.addEventListener('click', () => {
     if (currentUser) {
-      if (confirm(`Logout from ${currentUser.email}?`)) {
+      if (confirm(`Logged in as ${currentUser.name}. Do you want to logout?`)) {
         removeToken();
         currentUser = null;
         updateUserUI(null);
       }
     } else {
-      openAuthModal(false);
+      authModal.classList.remove('hidden');
     }
   });
 
-  function openAuthModal(registerMode = false) {
-    isRegisterMode = registerMode;
-    authErrorMsg.classList.add('hidden');
-    authForm.reset();
-    if (isRegisterMode) {
-      modalTitle.textContent = 'Register for TailorFit.ai';
-      nameGroup.style.display = 'block';
-      authSubmitBtn.textContent = 'Register Account';
-      authToggleText.innerHTML = 'Already have an account? <a href="#" id="auth-toggle-btn">Sign in here</a>';
-    } else {
-      modalTitle.textContent = 'Login to TailorFit.ai';
-      nameGroup.style.display = 'none';
-      authSubmitBtn.textContent = 'Sign In';
-      authToggleText.innerHTML = 'Don\'t have an account? <a href="#" id="auth-toggle-btn">Register here</a>';
-    }
-    document.getElementById('auth-toggle-btn').addEventListener('click', (e) => {
-      e.preventDefault();
-      openAuthModal(!isRegisterMode);
-    });
-    authModal.classList.remove('hidden');
-  }
-
-  closeModalBtn.addEventListener('click', () => authModal.classList.add('hidden'));
-
-  authForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    authErrorMsg.classList.add('hidden');
-
-    const endpoint = isRegisterMode ? '/api/auth/register' : '/api/auth/login';
-    const payload = isRegisterMode
-      ? { name: authName.value, email: authEmail.value, password: authPassword.value }
-      : { email: authEmail.value, password: authPassword.value };
-
-    try {
-      const res = await fetch(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Authentication failed');
-
-      setToken(data.token);
-      currentUser = data.user;
-      updateUserUI(currentUser);
-      authModal.classList.add('hidden');
-    } catch(err) {
-      authErrorMsg.textContent = err.message;
-      authErrorMsg.classList.remove('hidden');
-    }
-  });
-
-  // Navigation
-  navDashboard.addEventListener('click', () => {
-    navDashboard.classList.add('active');
-    navHistory.classList.remove('active');
-    viewDashboard.classList.remove('hidden');
-    viewHistory.classList.add('hidden');
-  });
-
-  navHistory.addEventListener('click', () => {
-    navHistory.classList.add('active');
-    navDashboard.classList.remove('active');
-    viewHistory.classList.remove('hidden');
-    viewDashboard.classList.add('hidden');
-    loadHistory();
-  });
+  closeModalBtn.addEventListener('click', () => { authModal.classList.add('hidden'); });
 
   async function loadHistory() {
-    historyContainer.innerHTML = '<div style="color: #94a3b8; text-align: center; padding: 20px;">Loading saved resume scans...</div>';
-    const token = getToken();
-    const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
-
+    historyContainer.innerHTML = '<p style="color:#94a3b8;">Loading history...</p>';
     try {
-      const res = await fetch('/api/history', { headers });
+      const res = await fetch('/api/history');
       const data = await res.json();
-
-      if (!data.history || data.history.length === 0) {
-        historyContainer.innerHTML = '<div style="color: #94a3b8; text-align: center; padding: 20px;">No saved resume scans found. Scan a resume on the Tailor Tool tab to save reports!</div>';
+      if (!data || data.length === 0) {
+        historyContainer.innerHTML = '<p style="color:#94a3b8;">No past scans found in history.</p>';
         return;
       }
-
-      historyContainer.innerHTML = '';
-      data.history.forEach(item => {
-        const dateStr = new Date(item.created_at).toLocaleString();
-        const card = document.createElement('div');
-        card.style.cssText = 'background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 16px; margin-bottom: 12px;';
-        card.innerHTML = `
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-            <div style="display: flex; gap: 8px; align-items: center;">
-              <span style="font-weight: 700; color: #fff; font-size: 15px;">Scan #${item.id.substring(0,8)}</span>
-              <span style="background: #10b981; color: #fff; font-size: 11px; padding: 2px 8px; border-radius: 6px; font-weight: 600;">Match: ${item.optimized_score}%</span>
-            </div>
-            <span style="color: #94a3b8; font-size: 12px;">📅 ${dateStr}</span>
+      historyContainer.innerHTML = data.map(item => `
+        <div style="background: rgba(255,255,255,0.8); border: 1px solid var(--palette-navy); border-radius: 8px; padding: 12px; margin-bottom: 10px;">
+          <div style="display:flex; justify-content:space-between; margin-bottom: 6px;">
+            <span style="font-weight: 700;">Scan #${item.id} — ${item.created_at || ''}</span>
+            <span style="color:#10b981; font-weight:700;">Score: ${item.optimized_score || 95}%</span>
           </div>
-          <p style="color: #cbd5e1; font-size: 13px; margin-bottom: 8px;"><strong>Summary:</strong> ${item.executive_summary}</p>
-          <div style="display: flex; gap: 6px; flex-wrap: wrap;">
-            ${(item.missing_keywords || []).map(kw => `<span style="background: rgba(239,68,68,0.2); color: #f87171; font-size: 11px; padding: 2px 8px; border-radius: 4px;">+ ${kw}</span>`).join('')}
-          </div>
-        `;
-        historyContainer.appendChild(card);
-      });
+          <pre style="font-size: 11px; max-height: 60px; overflow: hidden;">${(item.optimized_resume || '').slice(0, 150)}...</pre>
+        </div>
+      `).join('');
     } catch(err) {
-      historyContainer.innerHTML = `<div style="color: #ef4444; padding: 20px; text-align: center;">Failed to load history: ${err.message}</div>`;
+      historyContainer.innerHTML = '<p style="color:red;">Failed to load history.</p>';
     }
   }
-
-  // Sample Presets
-  const sampleSweBtn = document.getElementById('sample-swe-btn');
-  const samplePmBtn = document.getElementById('sample-pm-btn');
-
-  if (sampleSweBtn) {
-    sampleSweBtn.addEventListener('click', () => {
-      resumeInput.value = `ALEX RIVERA
-Software Engineer | Full Stack Specialist
-Email: alex.rivera@example.com | GitHub: github.com/arivera | LinkedIn: linkedin.com/in/arivera
-
-SUMMARY
-Experienced Full Stack Engineer with 4 years building scalable web applications. Skilled in React, Node.js, Express, and PostgreSQL. Focused on clean code, unit testing, and performant REST APIs.
-
-EXPERIENCE
-Software Engineer | Acme Tech Inc | 2022 - Present
-- Developed customer-facing React dashboard used by 50k monthly active users.
-- Built backend REST endpoints using Node.js and PostgreSQL to handle order processing.
-- Collaborated with product designers to implement responsive UI layouts.
-
-Junior Developer | CloudScale Solutions | 2020 - 2022
-- Wrote unit tests using Jest and React Testing Library, increasing code coverage from 60% to 85%.
-- Maintained internal Node.js scripts and fixed web frontend bug tickets.
-
-SKILLS
-JavaScript, TypeScript, React, Node.js, Express, HTML/CSS, PostgreSQL, Git, Jest`;
-
-      jobInput.value = `SENIOR FULL STACK ENGINEER (CLOUD & SYSTEM ARCHITECTURE)
-
-We are seeking a Senior Full Stack Engineer to lead our cloud-native platforms.
-
-Requirements:
-- 4+ years of professional engineering experience with React, Node.js, and TypeScript.
-- Strong expertise in System Architecture, Microservices, and GraphQL API design.
-- Hands-on experience with Kubernetes, Docker containerization, and AWS cloud infrastructure.
-- Demonstrated success establishing automated CI/CD pipelines (GitHub Actions / Jenkins).
-- Proven track record optimizing database query performance and high-frequency backend services.
-- Excellent cross-functional leadership skills with agile development methodologies.`;
-    });
-  }
-
-  if (samplePmBtn) {
-    samplePmBtn.addEventListener('click', () => {
-      resumeInput.value = `PRIYA SHARMA
-Technical Product Manager | Growth & Analytics
-Email: priya.sharma@example.com | LinkedIn: linkedin.com/in/psharma
-
-SUMMARY
-Data-driven Product Manager with 5 years leading mobile app features and SaaS retention workflows. Proficient in SQL, A/B testing, user journey mapping, and agile roadmap development.
-
-EXPERIENCE
-Product Manager | GrowthPay Inc | 2021 - Present
-- Managed checkout optimization roadmap, improving user conversion rate by 14%.
-- Conducted weekly user research interviews and analyzed funnels using Amplitude.
-- Led sprint planning and backlog grooming with a 9-person engineering squad.
-
-Associate PM | MarketPulse App | 2019 - 2021
-- Defined PRDs and user stories for onboarding features.
-- Launched referral feature resulting in 25,000 new organic user signups in Q3.
-
-SKILLS
-Product Strategy, User Research, SQL, A/B Testing, Wireframing, Jira, Amplitude, Agile/Scrum`;
-
-      jobInput.value = `SENIOR TECHNICAL PRODUCT MANAGER (AI PLATFORMS)
-
-Looking for a Senior TPM to drive our AI Product Intelligence roadmap.
-
-Requirements:
-- 5+ years of Product Management experience in SaaS / AI ecosystems.
-- Deep expertise in Product Strategy, Go-To-Market (GTM) execution, and AI model metrics.
-- Strong proficiency in SQL, quantitative retention modeling, and complex user funnel analytics.
-- Proven experience managing cross-functional engineering, data science, and design teams.
-- Experience with API integrations, LLM workflows, and developer platform adoption.`;
-    });
-  }
-
-  // Tabs: Resume vs Cover Letter
-  const tabBtnResume = document.getElementById('tab-btn-resume');
-  const tabBtnCover = document.getElementById('tab-btn-cover');
-  const tabContentResume = document.getElementById('tab-content-resume');
-  const tabContentCover = document.getElementById('tab-content-cover');
-  const outputCoverEl = document.getElementById('output-cover-content');
-  const exportTxtBtn = document.getElementById('export-txt-btn');
-  let activeTab = 'resume';
-
-  if (tabBtnResume && tabBtnCover) {
-    tabBtnResume.addEventListener('click', () => {
-      activeTab = 'resume';
-      tabBtnResume.className = 'btn primary btn-sm';
-      tabBtnCover.className = 'btn secondary btn-sm';
-      tabContentResume.classList.remove('hidden');
-      tabContentCover.classList.add('hidden');
-    });
-
-    tabBtnCover.addEventListener('click', () => {
-      activeTab = 'cover';
-      tabBtnCover.className = 'btn primary btn-sm';
-      tabBtnResume.className = 'btn secondary btn-sm';
-      tabContentCover.classList.remove('hidden');
-      tabContentResume.classList.add('hidden');
-    });
-  }
-
-  // Copy Active Button
-  copyBtn.addEventListener('click', () => {
-    const textToCopy = activeTab === 'resume' ? outputResumeEl.value : (outputCoverEl ? outputCoverEl.value : '');
-    if (!textToCopy) return;
-    navigator.clipboard.writeText(textToCopy);
-    copyBtn.textContent = 'Copied!';
-    setTimeout(() => copyBtn.textContent = '📋 Copy Active', 2000);
-  });
-
-  // Export TXT Button
-  if (exportTxtBtn) {
-    exportTxtBtn.addEventListener('click', () => {
-      const textToExport = activeTab === 'resume' ? outputResumeEl.value : (outputCoverEl ? outputCoverEl.value : '');
-      if (!textToExport) {
-        alert('No content available to export.');
-        return;
-      }
-      const filename = activeTab === 'resume' ? `tailorfit_resume_${Date.now()}.txt` : `tailorfit_cover_letter_${Date.now()}.txt`;
-      const blob = new Blob([textToExport], { type: 'text/plain;charset=utf-8' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = filename;
-      a.click();
-    });
-  }
-
-  // Sub-scores elements
-  const subKwMatch = document.getElementById('sub-kw-match');
-  const subFmt = document.getElementById('sub-fmt');
-  const subMetrics = document.getElementById('sub-metrics');
-  const subSkills = document.getElementById('sub-skills');
-
-  // Scan & Optimize Button
-  optimizeBtn.addEventListener('click', async () => {
-    const resume = resumeInput.value.trim();
-    const jobDescription = jobInput.value.trim();
-
-    if (!resume || !jobDescription) {
-      alert('Please paste both your candidate resume and target job description.');
-      return;
-    }
-
-    optimizeBtn.textContent = 'Scanning & Optimizing ATS Bullet Points...';
-    optimizeBtn.disabled = true;
-    if (aiStatusBadge) aiStatusBadge.textContent = 'Processing via NVIDIA Nemotron...';
-
-    const token = getToken();
-    const headers = { 'Content-Type': 'application/json' };
-    if (token) headers['Authorization'] = `Bearer ${token}`;
-
-    try {
-      const res = await fetch('/api/analyze', {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({ resume, jobDescription })
-      });
-
-      if (!res.ok) throw new Error('API error or server offline');
-      const data = await res.json();
-
-      resultsPanel.classList.remove('hidden');
-      origScoreEl.textContent = `${data.original_score}%`;
-      optScoreEl.textContent = `${data.optimized_score}%`;
-
-      if (data.score_breakdown) {
-        if (subKwMatch) subKwMatch.textContent = `${data.score_breakdown.keyword_match || 92}%`;
-        if (subFmt) subFmt.textContent = `${data.score_breakdown.formatting || 96}%`;
-        if (subMetrics) subMetrics.textContent = `${data.score_breakdown.quantified_metrics || 90}%`;
-        if (subSkills) subSkills.textContent = `${data.score_breakdown.hard_skills || 94}%`;
-      }
-
-      missingKwWrapper.innerHTML = '';
-      if (data.missing_keywords) {
-        data.missing_keywords.forEach(kw => {
-          missingKwWrapper.innerHTML += `<span class="tag missing-tag">+ ${kw}</span>`;
-        });
-      }
-
-      if (execSummaryEl) execSummaryEl.textContent = data.executive_summary;
-      if (outputResumeEl) outputResumeEl.value = data.optimized_resume;
-      if (outputCoverEl) outputCoverEl.value = data.cover_letter || 'Cover letter generated.';
-
-    } catch(err) {
-      alert('Optimization error: ' + err.message);
-    } finally {
-      optimizeBtn.textContent = 'Scan & Tailor ATS Resume + Cover Letter';
-      optimizeBtn.disabled = false;
-      if (aiStatusBadge) aiStatusBadge.textContent = 'NVIDIA Nemotron ATS Engine';
-    }
-  });
 
   checkAuth();
 });

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TailorFit.ai — Resume ATS Optimizer</title>
+  <title>TailorFit.ai — Resume ATS Optimizer & Snippet Vault</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
@@ -43,7 +43,8 @@
       </div>
       <nav class="nav-menu">
         <button id="nav-dashboard" class="nav-item active"><span class="icon">📝</span> Tailor Tool</button>
-        <button id="nav-history" class="nav-item"><span class="icon">💼</span> Saved Resumes</button>
+        <button id="nav-vault" class="nav-item"><span class="icon">📌</span> Snippet Vault <span style="font-size: 10px; background: rgba(255, 215, 0, 0.2); color: #ffd700; padding: 2px 6px; border-radius: 10px; margin-left: auto;">v1.1</span></button>
+        <button id="nav-history" class="nav-item"><span class="icon">💼</span> Saved History</button>
       </nav>
       <div class="sidebar-footer">
         <div class="user-profile" id="user-profile-btn" style="cursor: pointer;">
@@ -63,7 +64,7 @@
         <header class="header">
           <div class="header-title">
             <h1>Resume ATS Optimizer</h1>
-            <p>Instantly align your resume with any job description to beat Applicant Tracking Systems (ATS).</p>
+            <p>Instantly align your resume with job descriptions and save reusable bullet snippets.</p>
           </div>
           <div class="header-actions" style="display: flex; align-items: center; gap: 12px;">
             <a href="https://www.producthunt.com/products/tailorfit-ai-resume-ats-optimizer?embed=true&amp;utm_source=badge-featured&amp;utm_medium=badge&amp;utm_campaign=badge-tailorfit-ai-resume-ats-optimizer" target="_blank" rel="noopener noreferrer">
@@ -73,27 +74,38 @@
           </div>
         </header>
 
-        <!-- Step 1: Input forms side by side -->
-        <!-- Preset Templates Row -->
-        <div style="display: flex; gap: 10px; margin-bottom: 16px; align-items: center; flex-wrap: wrap;">
-          <span style="font-size: 13px; color: #94a3b8; font-weight: 500;">💡 Try Template Presets:</span>
-          <button id="sample-swe-btn" class="btn secondary btn-sm" style="font-size: 12px; padding: 4px 12px;">💻 Software Engineer</button>
-          <button id="sample-pm-btn" class="btn secondary btn-sm" style="font-size: 12px; padding: 4px 12px;">📊 Product Manager</button>
+        <!-- Base Resume Profile Switcher & Sample Presets Row -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px; background: rgba(255,215,0,0.03); border: 1px solid rgba(255,215,0,0.15); padding: 12px 16px; border-radius: 10px;">
+          <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <span style="font-size: 13px; color: #ffd700; font-weight: 700;">📂 Base Resume Vault:</span>
+            <select id="base-profile-select" style="background: #0f172a; color: #f8fafc; border: 1px solid rgba(255,215,0,0.3); padding: 6px 12px; border-radius: 6px; font-size: 12px;">
+              <option value="default">Default Base Profile</option>
+              <option value="swe">💻 Software Engineer Profile</option>
+              <option value="pm">📊 Product Manager Profile</option>
+            </select>
+            <button id="save-base-profile-btn" class="btn secondary btn-sm" style="font-size: 12px; padding: 4px 10px; border-color: rgba(255,215,0,0.4); color: #ffd700;">💾 Save Current as Base</button>
+          </div>
+
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <span style="font-size: 12px; color: #94a3b8;">Preset Demos:</span>
+            <button id="sample-swe-btn" class="btn secondary btn-sm" style="font-size: 11px; padding: 3px 10px;">Software Engineer</button>
+            <button id="sample-pm-btn" class="btn secondary btn-sm" style="font-size: 11px; padding: 3px 10px;">Product Manager</button>
+          </div>
         </div>
 
         <!-- Step 1: Input forms side by side -->
         <div class="dashboard-grid">
           <section class="card input-card">
             <div class="card-header">
-              <h3>1. Paste Your Current Resume</h3>
+              <h3>1. Base Resume Content</h3>
               <span class="lbl-limit">Markdown / Text</span>
             </div>
-            <textarea id="resume-input" placeholder="Paste your resume contents here..."></textarea>
+            <textarea id="resume-input" placeholder="Paste your base resume contents here..."></textarea>
           </section>
 
           <section class="card input-card">
             <div class="card-header">
-              <h3>2. Paste Target Job Description</h3>
+              <h3>2. Target Job Description</h3>
               <span class="lbl-limit">Job Requirements Text</span>
             </div>
             <textarea id="job-input" placeholder="Paste the full job description / requirements here..."></textarea>
@@ -165,6 +177,7 @@
                   <button id="tab-btn-cover" class="btn secondary btn-sm">✉️ Tailored Cover Letter</button>
                 </div>
                 <div style="display: flex; gap: 6px;">
+                  <button id="pin-vault-btn" class="btn secondary btn-sm" style="border-color: #ffd700; color: #ffd700;">📌 Save to Vault</button>
                   <button id="copy-btn" class="btn secondary btn-sm">📋 Copy Active</button>
                   <button id="export-txt-btn" class="btn secondary btn-sm">📥 Export TXT</button>
                 </div>
@@ -181,6 +194,41 @@
               <div id="tab-content-cover" class="hidden">
                 <textarea id="output-cover-content" rows="18" readonly></textarea>
               </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SNIPPET VAULT VIEW (NEW FEATURE) -->
+      <div id="view-vault-container" class="hidden">
+        <header class="header">
+          <div class="header-title">
+            <h1>📌 Personal Snippet & Bullet Vault</h1>
+            <p>Save high-performing bullet rewrites and base resume profiles for quick reuse across job applications.</p>
+          </div>
+          <div class="header-actions">
+            <button id="add-manual-snippet-btn" class="btn primary btn-sm">➕ Add Custom Bullet Snippet</button>
+          </div>
+        </header>
+
+        <div style="margin-top: 20px; display: grid; grid-template-columns: 1fr 2fr; gap: 20px; align-items: start;">
+          <!-- Base Profiles Section -->
+          <div class="card" style="padding: 20px;">
+            <h3 style="color: #ffd700; font-size: 16px; margin-bottom: 12px;">📂 Base Resume Templates</h3>
+            <div id="base-profiles-list" style="display: flex; flex-direction: column; gap: 10px;">
+              <!-- JS Injected -->
+            </div>
+          </div>
+
+          <!-- Bullet Snippets Vault Section -->
+          <div class="card" style="padding: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
+              <h3 style="color: #10b981; font-size: 16px;">📌 Reusable Bullet Rewrites</h3>
+              <input type="text" id="vault-search-input" placeholder="🔍 Search saved bullets..." style="background: #0f172a; border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 6px 12px; border-radius: 6px; font-size: 12px; width: 200px;">
+            </div>
+
+            <div id="vault-snippets-list" style="display: flex; flex-direction: column; gap: 12px; max-height: 500px; overflow-y: auto;">
+              <!-- JS Injected -->
             </div>
           </div>
         </div>
