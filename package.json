@@ -1,11 +1,9 @@
 {
-  "name": "@voidreformer/tailorfit-ai",
+  "name": "tailorfit-ai-ats",
   "version": "1.1.0",
   "description": "AI Resume ATS Optimizer and Job Bullet Tailor powered by NVIDIA Nemotron, SQLite WASM, and Personal Snippet Vault",
   "main": "server.js",
-  "bin": {
-    "tailorfit-ai": "./bin/cli.js"
-  },
+  "bin": "bin/cli.js",
   "keywords": [
     "resume",
     "ats",
