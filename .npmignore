@@ -1,3 +1,4 @@
 ph_assets/
 .git/
 .env
+.vercel/
