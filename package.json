@@ -1,6 +1,9 @@
 {
-  "name": "@rudraattripandey/tailorfit-ai-ats",
+  "name": "@voidreformer/tailorfit-ai",
   "version": "1.1.0",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
   "description": "AI Resume ATS Optimizer and Job Bullet Tailor powered by NVIDIA Nemotron, SQLite WASM, and Personal Snippet Vault",
   "main": "server.js",
   "bin": {
